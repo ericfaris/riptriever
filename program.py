@@ -4,7 +4,7 @@ import os
 import fnmatch
 import pickle
 import re
-import requests
+from selenium import webdriver
 from stat import S_ISDIR
 
 def getExistingDirs():
@@ -24,11 +24,18 @@ def putExistingDirs(existingDirs):
 
 def getShows():
     shows = []
-    text_file = open("shows.txt", "r")
-    lines = text_file.readlines()
-    for line in lines:
-        shows.append(line.replace("\n",""))
-    text_file.close()
+    driver = webdriver.Chrome("chromedriver.exe")
+    driver.get('https://showrss.info/login')
+    username = driver.find_element_by_id("username")
+    password = driver.find_element_by_id("password")
+    username.send_keys("ericfaris")
+    password.send_keys("cats8706")
+    driver.find_element_by_tag_name("button").click()
+    list = driver.find_elements_by_class_name("sh")
+    for item in list:
+        shows.append(item.text)
+    driver.quit()
+
     return shows
 
 def getDirsToDownload(existingItems, shows):
