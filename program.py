@@ -5,6 +5,9 @@ import fnmatch
 import pickle
 import re
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from stat import S_ISDIR
 
 def getExistingDirs():
@@ -26,15 +29,20 @@ def getShows():
     shows = []
     driver = webdriver.Chrome("chromedriver.exe")
     driver.get('https://showrss.info/login')
-    username = driver.find_element_by_id("username")
-    password = driver.find_element_by_id("password")
-    username.send_keys("ericfaris")
-    password.send_keys("cats8706")
-    driver.find_element_by_tag_name("button").click()
-    list = driver.find_elements_by_class_name("sh")
-    for item in list:
-        shows.append(item.text)
-    driver.quit()
+    try:
+        element = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.ID, "username"))
+        )
+        username = driver.find_element_by_id("username")
+        password = driver.find_element_by_id("password")
+        username.send_keys("ericfaris")
+        password.send_keys("cats8706")
+        driver.find_element_by_tag_name("button").click()
+        list = driver.find_elements_by_class_name("sh")
+        for item in list:
+            shows.append(item.text)
+    finally:
+        driver.quit()
 
     return shows
 
