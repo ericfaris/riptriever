@@ -4,6 +4,7 @@ import os
 import fnmatch
 import pickle
 import re
+import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -30,7 +31,7 @@ def getShows():
     driver = webdriver.Chrome("chromedriver.exe")
     driver.get('https://showrss.info/login')
     try:
-        element = WebDriverWait(driver, 30).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.ID, "username"))
         )
         username = driver.find_element_by_id("username")
@@ -77,10 +78,16 @@ def download_dir(remote_dir, local_dir):
 def printTotals(transferred, toBeTransferred):
     print("Transferred: {0}\tof: {1}").format(transferred, toBeTransferred)
 
-REMOTE = "/home26/steeple05/downloads/rips"
-LOCAL = "f:\\videos\\tv"
-transport = paramiko.Transport(('hero.seedhost.eu', 22))
-transport.connect(username='steeple05', password='KnZ2vc5weFt2wRfG')
+def loadConfig(configFile):
+    with open(configFile) as json_data_file:
+        data = json.load(json_data_file)
+    return data
+
+config = loadConfig("config.json")
+REMOTE = config['remoteDir']
+LOCAL = config['localDir']
+transport = paramiko.Transport((config['host'], config['port']))
+transport.connect(username=config['username'], password=config['password'])
 sftp = paramiko.SFTP.from_transport(transport)
 existingDirs = getExistingDirs()
 shows = getShows()
