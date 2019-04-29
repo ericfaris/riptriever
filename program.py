@@ -41,7 +41,7 @@ def getShows():
         driver.find_element_by_tag_name("button").click()
         list = driver.find_elements_by_class_name("sh")
         for item in list:
-            shows.append(item.text)
+            shows.append(str(item.text).replace("'","",-1))
     finally:
         driver.quit()
 
